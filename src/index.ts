@@ -1,3 +1,2 @@
-export const hello = () => {
-  return 'Hello world!';
-};
+export * from './configify.module';
+export * from './value.decorator';

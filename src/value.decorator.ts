@@ -15,7 +15,6 @@ export const Value = (
     Object.defineProperty(target, propertyKey, {
       get() {
         let value = configService.get(key, undefined);
-        console.log('debug: ', key, value, typeof value);
         if (value === undefined && options?.defaultValue !== undefined) {
           value = options.defaultValue;
         }

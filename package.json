@@ -2,6 +2,8 @@
   "name": "nest-configify",
   "version": "0.1.0",
   "description": "NestJS Type-safe configuration library",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "vitest --run",
     "build": "rimraf dist && tsc",
@@ -13,6 +15,13 @@
     "NestJS"
   ],
   "author": "Lukas.J.Han <lukas.j.han@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lukasjhan/nest-configify"
+  },
+  "bugs": {
+    "url": "https://github.com/lukasjhan/nest-configify/issues"
+  },
   "license": "MIT",
   "dependencies": {
     "@nestjs/common": "^10.4.3",

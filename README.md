@@ -1,93 +1,129 @@
-# NestJS Library Starter
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+</p>
 
-Welcome to the NestJS Library Starter! This template repository is designed to help you quickly set up and develop libraries for NestJS applications. It comes pre-configured with essential build and test tools, allowing you to focus on writing your library code without worrying about the setup.
+<p align="center"><b>nest-configify</b></p>
+<p align="center">NestJS type-safe configuration library</p>
+
+# nest-configify
+
+`nest-configify` is a powerful configuration management library for NestJS applications. It provides a clean, type-safe, and decorator-based approach to handling configuration in your NestJS projects.
 
 ## Features
 
-- 🚀 Pre-configured NestJS environment
-- 📦 Ready-to-use build setup
-- 🧪 Testing infrastructure in place
-- 📚 Easy-to-follow project structure
-- 🛠 Development tools and scripts included
+- 🚀 Easy integration with NestJS projects
+- 🔒 Type-safe configuration using TypeScript
+- 🎨 Decorator-based configuration definition
+- ✅ Built-in validation using class-validator
+- 🔧 Support for environment variables and default values
+- 🌈 Flexible parsing of configuration values
 
-## Getting Started
+## Installation
 
-### Prerequisites
+To install `nest-configify`, run the following command in your project directory:
 
-- Node.js (v14 or later)
-- npm (v6 or later)
-
-### Installation
-
-1. Clone this repository or create repository from this template:
-
-   ```
-   git clone https://github.com/lukasjhan/nestjs-lib-starter your-library-name
-   ```
-
-2. Navigate to the project directory:
-
-   ```
-   cd your-library-name
-   ```
-
-3. Install dependencies:
-   ```
-   npm install
-   ```
-
-### Project Structure
-
-```
-nestjs-lib-starter/
-├── src/
-│   ├── index.ts        # Main entry point
-│   └── ...             # Your library code goes here
-├── test/
-│   └── ...             # Test files
-├── package.json
-├── tsconfig.json
-└── README.md
+```bash
+npm install nest-configify class-validator class-transformer
 ```
 
-## Development
+## Usage
 
-### Writing Your Library Code
+### 1. Define your configuration
 
-1. Place your library code in the `src/` directory.
-2. Update `src/index.ts` to export your library's public API.
+Create a configuration class using the `@Config()` decorator and define your configuration properties using the `@Value()` decorator:
 
-### Building the Library
+```typescript
+import { Config, Value } from 'nest-configify';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-To build your library, run:
+@Config()
+export class AppConfig {
+  @Value('PORT', { parse: (v) => parseInt(v, 10) })
+  @IsNumber()
+  @IsNotEmpty()
+  port: number;
 
+  @Value('DATABASE_URL')
+  @IsString()
+  @IsNotEmpty()
+  databaseUrl: string;
+
+  @Value('API_KEY', { defaultValue: 'default-key' })
+  @IsString()
+  apiKey: string;
+}
 ```
-npm run build
+
+### 2. Import ConfigifyModule in your app module
+
+```typescript
+import { Module } from '@nestjs/common';
+import { ConfigifyModule } from 'nest-configify';
+import { AppConfig } from './app.config';
+
+@Module({
+  imports: [
+    ConfigifyModule.forRoot({
+      configs: [AppConfig],
+      envFilePath: '.env',
+    }),
+  ],
+  // ...
+})
+export class AppModule {}
 ```
 
-This will compile your TypeScript code and generate output in the `dist/` directory.
+### 3. Use the configuration in your services
 
-### Running Tests
+```typescript
+import { Injectable } from '@nestjs/common';
+import { AppConfig } from './app.config';
 
-To run the test suite:
+@Injectable()
+export class AppService {
+  constructor(private readonly appConfig: AppConfig) {}
 
+  getPort(): number {
+    return this.appConfig.port;
+  }
+}
 ```
-npm test
-```
 
-This will execute all tests in the `test/` directory using Jest.
+## API Reference
 
-## Publishing Your Library
+### @Config()
 
-1. Update `package.json` with your library's information (name, version, description, etc.).
-2. Build your library: `npm run build`
-3. Publish to npm: `npm publish`
+Class decorator to mark a class as a configuration class.
 
-## Scripts
+### @Value(key: string, options?: ValueOptions)
 
-- `npm run build`: Builds the library
-- `npm run test`: Runs the test suite
-- `npm run lint`: Lints the code
+Property decorator to bind a configuration value to a class property.
+
+Options:
+
+- `parse`: A function to parse the string value from the environment variable
+- `defaultValue`: A default value to use if the environment variable is not set
+
+### ConfigifyModule.forRoot(options)
+
+Static method to configure the ConfigifyModule.
+
+Options:
+
+- `configs`: An array of configuration classes
+- `envFilePath`: Path to the .env file (optional)
+
+## Validation
+
+`nest-configify` uses `class-validator` for runtime validation of configuration values. You can use any of the `class-validator` decorators to add validation rules to your configuration properties.
+
+## Best Practices
+
+1. Group related configuration properties into separate configuration classes.
+2. Use meaningful names for your configuration classes and properties.
+3. Always provide default values for optional configuration properties.
+4. Use appropriate validation decorators to ensure the integrity of your configuration.
+5. Keep sensitive information (like API keys) in environment variables and not in your codebase.
 
 ## Contributing
 
@@ -95,12 +131,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE-TEMPLATELICENSE) file for details.
-
-## Support
-
-If you encounter any problems or have questions, please open an issue in the GitHub repository.
-
----
-
-Happy coding! We hope this starter template helps you create amazing NestJS libraries. 🚀
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

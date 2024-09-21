@@ -1,6 +1,7 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CONFIG_CLASS_KEY } from './config.decorator';
+import { validateSync } from 'class-validator';
 
 @Global()
 @Module({})
@@ -20,7 +21,14 @@ export class ConfigifyModule {
 
       return {
         provide: configClass,
-        useFactory: () => new configClass(),
+        useFactory: () => {
+          const instance = new configClass();
+          const errors = validateSync(instance);
+          if (errors.length > 0) {
+            throw new Error(`Config validation failed: ${errors.toString()}`);
+          }
+          return instance;
+        },
       };
     });
 
